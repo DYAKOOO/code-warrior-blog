@@ -1,0 +1,71 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import BlogPost from '../../layouts/BlogPost.astro';
+
+const posts = await getCollection('blog');
+const tags = posts.map((post) => post.data.tags || []).flat();
+const uniqueTags = [...new Set(tags)];
+---
+
+<Layout title="Blog">
+  <div class="flex flex-wrap gap-2 mb-4" id="tags" data-tags={uniqueTags}>
+    <button data-type="all" class="filter-button active" id="blogFilter">
+      Show All
+    </button>
+    {uniqueTags.map((tag) => (
+      <button data-type={tag} class="filter-button" id="blogFilter">
+        {tag}
+      </button>
+    ))}
+  </div>
+  
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    {posts.map((post) => (
+      <div class={`blog-post ${post.data.tags ? post.data.tags.join(" ") : ""}`}>
+        <BlogPost post={post} />
+      </div>
+    ))}
+  </div>
+
+  <script>
+    function filterBlogs(tag) {
+      const buttons = document.querySelectorAll("#blogFilter");
+      buttons.forEach((button) => {
+        button.classList.toggle("active", button.getAttribute("data-type") === tag);
+      });
+
+      document.querySelectorAll('.blog-post').forEach((el) => {
+        el.style.display = (tag === "all" || el.classList.contains(tag)) ? "block" : "none";
+      });
+    }
+
+    // Event listener for the button click
+    document.querySelectorAll("#blogFilter").forEach((button) => {
+      button.addEventListener("click", (e) => filterBlogs(e.currentTarget.getAttribute("data-type")));
+    });
+
+    // Event delegation for tag clicks within blog posts
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('post-tag')) {
+        e.preventDefault();
+        filterBlogs(e.target.getAttribute('data-tag'));
+      }
+    });
+  </script>
+</Layout>
+
+<style>
+  .filter-button {
+    @apply text-gray-800 bg-gray-200 px-3 py-1 rounded-full text-sm transition duration-300;
+  }
+  .filter-button:hover {
+    @apply bg-red-600 text-white;
+  }
+  .filter-button.active {
+    @apply bg-red-400 text-black;
+  }
+  .blog-post {
+    @apply block;
+  }
+</style>

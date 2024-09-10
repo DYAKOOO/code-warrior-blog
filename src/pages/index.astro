@@ -1,0 +1,41 @@
+---
+// src/pages/index.astro
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+import RecentPosts from '../components/RecentPosts.astro';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const recentPosts = posts.slice(0, 5);
+---
+
+<Layout title="My Blog">
+  <div class="flex flex-col md:flex-row">
+    <main class="w-full md:w-2/3 p-4">
+      <h1 class="text-4xl font-bold text-primary mb-8">Welcome to My Blog</h1>
+      <div class="space-y-8">
+        {posts.map((post) => (
+          <article class="bg-white shadow-md rounded-lg overflow-hidden">
+            <a href={`/blog/${post.slug}/`} class="block hover:bg-gray-50 transition duration-300">
+              <img src={post.data.heroImage} alt="" class="w-full h-48 object-cover" />
+              <div class="p-4">
+                <h2 class="text-2xl font-semibold text-secondary mb-2">{post.data.title}</h2>
+                <FormattedDate date={post.data.pubDate} />
+                <p class="text-gray-600 mt-2">{post.data.description}</p>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </main>
+    <aside class="w-full md:w-1/3 p-4 bg-gray-100">
+      <div class="sticky top-4">
+        <RecentPosts posts={recentPosts} />
+      </div>
+    </aside>
+  </div>
+</Layout>
+

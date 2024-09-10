@@ -1,0 +1,66 @@
+/* src/styles/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add any global styles here */
+:root {
+  --color-background: #f0f0de;
+  --color-surface: #fdfdfd;
+  --color-text-primary: #171717;
+  --color-text-secondary: #686868;
+  --color-link: #2A67FF;
+  --color-accent: #dd0808;  /* Updated to golden */
+  --color-border: #e6e92b;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+a {
+  color: var(--color-link);
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-accent);
+}
+
+.content-section {
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+}
+
+@layer components {
+  .btn, a, button, input[type="submit"] {
+    @apply min-h-[44px] min-w-[44px] p-2 ;
+  }
+}
+
+/* Styles for code snippets and LaTeX */
+pre[class*="language-"] {
+  @apply p-4 rounded-md overflow-x-auto text-sm md:text-base;
+}
+
+.katex-display {
+  @apply overflow-x-auto py-2;
+}
+
+.katex {
+  @apply text-sm md:text-base;
+}

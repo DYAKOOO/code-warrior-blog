@@ -1,0 +1,22 @@
+---
+// src/pages/tags/index.astro
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+---
+
+<Layout title="Tags">
+  <h1 class="text-4xl font-bold mb-8">Tags</h1>
+  <div class="flex flex-wrap gap-4">
+    {tags.map((tag) => (
+      <a 
+        href={`/tags/${tag}`}
+        class="bg-gray-200 px-4 py-2 rounded-full text-gray-700 hover:bg-gray-300 transition duration-300 ease-in-out"
+      >
+        {tag}
+      </a>
+    ))}
+  </div>
+</Layout>

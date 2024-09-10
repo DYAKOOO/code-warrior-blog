@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="About Me">
+  <div class="max-w-2xl mx-auto bg-surface p-8 rounded-lg shadow-md">
+    <h1 class="text-4xl font-bold mb-6 text-accent">About Me</h1>
+    <img src="/your-profile-image.jpg" alt="Your Name" class="w-64 h-64 rounded-full mx-auto mb-6 object-cover" />
+    <p class="text-text-secondary mb-4">
+      Hello! I'm [Your Name], a passionate [Your Profession/Interest] with a keen interest in [Your Specialties].
+    </p>
+    <p class="text-text-secondary mb-4">
+      On this blog, I share my thoughts, experiences, and insights on [Blog Topics]. My goal is to [Your Blog's Purpose].
+    </p>
+    <h2 class="text-2xl font-semibold mb-4 text-text-primary">My Expertise</h2>
+    <ul class="list-disc list-inside mb-4 text-text-secondary">
+      <li>Expertise 1</li>
+      <li>Expertise 2</li>
+      <li>Expertise 3</li>
+    </ul>
+    <h2 class="text-2xl font-semibold mb-4 text-text-primary">Connect With Me</h2>
+    <div class="flex space-x-4">
+      <a href="https://twitter.com/yourusername" class="text-link hover:text-accent">Twitter</a>
+      <a href="https://linkedin.com/in/yourusername" class="text-link hover:text-accent">LinkedIn</a>
+      <a href="https://github.com/yourusername" class="text-link hover:text-accent">GitHub</a>
+    </div>
+  </div>
+</Layout>
