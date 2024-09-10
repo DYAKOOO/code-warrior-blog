@@ -1,46 +1,48 @@
 ---
-const { tags, currentTag } = Astro.props;
+const { currentPath } = Astro.props;
+
+const isActive = (path: string) => currentPath === path;
 ---
 
-<aside id="sidebar" class="bg-surface p-4 md:p-6 rounded-lg shadow-md hidden md:block">
-  <h2 class="text-xl font-semibold mb-4 text-accent">Tags</h2>
-  <div class="flex flex-wrap gap-2">
-    <a 
-      href="/blog"
-      class={`px-3 py-1 rounded-full text-sm transition duration-300 ${
-        !currentTag 
-          ? 'bg-accent text-surface' 
-          : 'bg-background text-text-secondary hover:bg-accent hover:text-surface'
-      }`}
-    >
-      All Posts
-    </a>
-    {tags.map((tag) => (
-      <a 
-        href={`/blog?tag=${encodeURIComponent(tag)}`}
-        class={`px-3 py-1 rounded-full text-sm transition duration-300 ${
-          currentTag === tag 
-            ? 'bg-accent text-surface' 
-            : 'bg-background text-text-secondary hover:bg-accent hover:text-surface'
-        }`}
-      >
-        {tag}
-      </a>
-    ))}
-  </div>
+<div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40 hidden"></div>
+
+<aside id="sidebar" class="fixed top-0 right-0 w-64 h-full bg-gray-100 shadow-lg p-4 border-l-2 border-red-600 transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+  <button id="closeSidebar" class="absolute top-4 right-4 text-gray-600 hover:text-gray-800">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+  
+  <nav class="mt-8 mb-6">
+    <ul class="space-y-2">
+      <li><a href="/" class={`block py-2 px-4 rounded ${isActive('/') ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}>Home</a></li>
+      <li><a href="/blog" class={`block py-2 px-4 rounded ${isActive('/blog') ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}>Blog</a></li>
+      <li><a href="/projects" class={`block py-2 px-4 rounded ${isActive('/projects') ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}>Projects</a></li>
+      <li><a href="/about" class={`block py-2 px-4 rounded ${isActive('/about') ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}>About</a></li>
+    </ul>
+  </nav>
 </aside>
 
-<button id="sidebarToggle" class="fixed bottom-4 right-4 bg-accent text-surface p-2 rounded-full md:hidden">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-  </svg>
-</button>
-
 <script>
-  const sidebar = document.getElementById('sidebar');
-  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar')!;
+  const sidebarOverlay = document.getElementById('sidebar-overlay')!;
+  const closeSidebarBtn = document.getElementById('closeSidebar')!;
 
-  sidebarToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
-  });
+  function openSidebar() {
+    sidebar.classList.remove('translate-x-full');
+    sidebarOverlay.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.add('translate-x-full');
+    sidebarOverlay.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  // Expose openSidebar function to global scope
+  (window as any).openSidebar = openSidebar;
+
+  closeSidebarBtn.addEventListener('click', closeSidebar);
+  sidebarOverlay.addEventListener('click', closeSidebar);
 </script>

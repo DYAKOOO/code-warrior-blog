@@ -7,7 +7,7 @@ interface Props {
   placeholder?: string;
 }
 
-const { placeholder = "Search posts..." } = Astro.props;
+const { placeholder = "Search posts or tags..." } = Astro.props;
 ---
 
 <div class="search-container mb-8">
@@ -26,9 +26,16 @@ const { placeholder = "Search posts..." } = Astro.props;
 
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
+    
+    if (searchTerm === '') {
+      searchResults.innerHTML = '';
+      return;
+    }
+
     const filteredPosts = allPosts.filter(post => 
       post.data.title.toLowerCase().includes(searchTerm) ||
-      post.data.description.toLowerCase().includes(searchTerm)
+      post.data.description.toLowerCase().includes(searchTerm) ||
+      post.data.tags.some(tag => tag.toLowerCase().includes(searchTerm))
     );
 
     searchResults.innerHTML = filteredPosts.map(post => `
@@ -37,6 +44,13 @@ const { placeholder = "Search posts..." } = Astro.props;
           ${post.data.title}
         </a>
         <p class="text-text-secondary mt-2">${post.data.description}</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          ${post.data.tags.map(tag => `
+            <span class="bg-gray-200 px-2 py-1 rounded-full text-sm text-gray-700">
+              ${tag}
+            </span>
+          `).join('')}
+        </div>
       </div>
     `).join('');
   });

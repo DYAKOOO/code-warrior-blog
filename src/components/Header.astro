@@ -2,33 +2,62 @@
 import HeaderLink from './HeaderLink.astro';
 ---
 
-<header class="bg-surface text-text-primary p-4 shadow-sm border-b-2 border-accent sticky top-0 z-10">
+<header class="bg-white p-4 shadow-sm sticky top-0 z-50">
   <div class="container mx-auto flex justify-between items-center">
-    <a href="/" class="text-2xl font-bold text-accent">My Knowledge Blog</a>
-    <nav class="hidden md:block">
-      <HeaderLink href="/blog">Blog</HeaderLink>
-      <HeaderLink href="/projects">Projects</HeaderLink> <!-- New Projects link -->
+    <a href="/" class="text-2xl font-bold text-blue-600">My Knowledge Blog</a>
+    <nav class="hidden md:flex space-x-4">
+      <div class="relative">
+        <button id="blogDropdown" class="flex items-center space-x-1">
+          <span>Blog</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        <ul id="blogDropdownMenu" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
+          <li><a href="/blog" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Posts</a></li>
+          <li><a href="/blog/gaussian-splatting" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Gaussian Splatting</a></li>
+          <li><a href="/blog/machine-learning" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Machine Learning</a></li>
+        </ul>
+      </div>
+      <HeaderLink href="/projects">Projects</HeaderLink>
       <HeaderLink href="/about">About</HeaderLink>
-      <!-- Removed Tags link -->
     </nav>
     <button id="mobileMenuToggle" class="md:hidden">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
       </svg>
     </button>
   </div>
-  <nav id="mobileMenu" class="hidden mt-4 md:hidden">
-    <HeaderLink href="/blog">Blog</HeaderLink>
-    <HeaderLink href="/projects">Projects</HeaderLink> <!-- New Projects link -->
-    <HeaderLink href="/about">About</HeaderLink>
-  </nav>
+  <div id="mobileMenu" class="hidden md:hidden mt-4">
+    <a href="/blog" class="block py-2">Blog</a>
+    <a href="/projects" class="block py-2">Projects</a>
+    <a href="/about" class="block py-2">About</a>
+  </div>
 </header>
 
 <script>
   const mobileMenuToggle = document.getElementById('mobileMenuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
+  const blogDropdown = document.getElementById('blogDropdown');
+  const blogDropdownMenu = document.getElementById('blogDropdownMenu');
 
-  mobileMenuToggle.addEventListener('click', () => {
-    mobileMenu.classList.toggle('hidden');
-  });
+  if (mobileMenuToggle && mobileMenu) {
+    mobileMenuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  }
+
+  if (blogDropdown && blogDropdownMenu) {
+    blogDropdown.addEventListener('click', (e) => {
+      e.preventDefault();
+      blogDropdownMenu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!blogDropdown.contains(e.target as Node)) {
+        blogDropdownMenu.classList.add('hidden');
+      }
+    });
+  }
 </script>

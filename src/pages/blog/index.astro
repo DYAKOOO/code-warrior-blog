@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import BlogPost from '../../layouts/BlogPost.astro';
+import SearchBar from '../../components/SearchBar.astro';
 
 const posts = await getCollection('blog');
 const tags = posts.map((post) => post.data.tags || []).flat();
@@ -9,6 +10,11 @@ const uniqueTags = [...new Set(tags)];
 ---
 
 <Layout title="Blog">
+  <h1 class="text-4xl font-bold text-primary mb-8">Blog</h1>
+  <div class="mb-8">
+    <SearchBar placeholder="Search posts or tags..." />
+  </div>
+  
   <div class="flex flex-wrap gap-2 mb-4" id="tags" data-tags={uniqueTags}>
     <button data-type="all" class="filter-button active" id="blogFilter">
       Show All
@@ -19,8 +25,7 @@ const uniqueTags = [...new Set(tags)];
       </button>
     ))}
   </div>
-  
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div id="blogPosts" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     {posts.map((post) => (
       <div class={`blog-post ${post.data.tags ? post.data.tags.join(" ") : ""}`}>
         <BlogPost post={post} />
@@ -29,35 +34,89 @@ const uniqueTags = [...new Set(tags)];
   </div>
 
   <script>
-    function filterBlogs(tag) {
+    function filterBlogs(tag: string) {
       const buttons = document.querySelectorAll("#blogFilter");
       buttons.forEach((button) => {
-        button.classList.toggle("active", button.getAttribute("data-type") === tag);
+        if (button instanceof HTMLElement) {
+          button.classList.toggle("active", button.getAttribute("data-type") === tag);
+        }
       });
 
       document.querySelectorAll('.blog-post').forEach((el) => {
-        el.style.display = (tag === "all" || el.classList.contains(tag)) ? "block" : "none";
+        if (el instanceof HTMLElement) {
+          el.style.display = (tag === "all" || el.classList.contains(tag)) ? "block" : "none";
+        }
       });
     }
 
     // Event listener for the button click
     document.querySelectorAll("#blogFilter").forEach((button) => {
-      button.addEventListener("click", (e) => filterBlogs(e.currentTarget.getAttribute("data-type")));
+      button.addEventListener("click", (e) => {
+        const target = e.currentTarget;
+        if (target instanceof HTMLElement) {
+          const dataType = target.getAttribute("data-type");
+          if (dataType) {
+            filterBlogs(dataType);
+          }
+        }
+      });
     });
 
     // Event delegation for tag clicks within blog posts
     document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('post-tag')) {
+      const target = e.target;
+      if (target instanceof HTMLElement && target.classList.contains('post-tag')) {
         e.preventDefault();
-        filterBlogs(e.target.getAttribute('data-tag'));
+        const dataTag = target.getAttribute('data-tag');
+        if (dataTag) {
+          filterBlogs(dataTag);
+        }
       }
     });
+
+    // Search functionality
+    const searchInput = document.querySelector('#search-input');
+    const blogPosts = document.querySelector('#blogPosts');
+
+    if (searchInput instanceof HTMLInputElement && blogPosts) {
+      const allPosts = [...blogPosts.querySelectorAll('.blog-post')];
+
+      searchInput.addEventListener('input', (e) => {
+        const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
+        
+        allPosts.forEach(post => {
+          const title = post.querySelector('h2')?.textContent?.toLowerCase() || '';
+          const description = post.querySelector('p')?.textContent?.toLowerCase() || '';
+          const tags = [...post.querySelectorAll('.post-tag')].map(tag => tag.textContent?.toLowerCase() || '');
+          
+          const isVisible =
+            title.includes(searchTerm) ||
+            description.includes(searchTerm) ||
+            tags.some(tag => tag.includes(searchTerm));
+          
+          if (post instanceof HTMLElement) {
+            post.style.display = isVisible ? 'block' : 'none';
+          }
+        });
+
+        // Reset tag filter when searching
+        const allButton = document.querySelector('#blogFilter[data-type="all"]');
+        if (allButton instanceof HTMLElement) {
+          allButton.classList.add('active');
+        }
+        document.querySelectorAll('#blogFilter:not([data-type="all"])').forEach(btn => {
+          if (btn instanceof HTMLElement) {
+            btn.classList.remove('active');
+          }
+        });
+      });
+    }
   </script>
 </Layout>
 
 <style>
   .filter-button {
-    @apply text-gray-800 bg-gray-200 px-3 py-1 rounded-full text-sm transition duration-300;
+    @apply text-gray-600 bg-gray-200 px-2 py-2 rounded-full text-sm transition duration-300;
   }
   .filter-button:hover {
     @apply bg-red-600 text-white;

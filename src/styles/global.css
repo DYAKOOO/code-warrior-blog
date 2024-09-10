@@ -10,8 +10,9 @@
   --color-text-primary: #171717;
   --color-text-secondary: #686868;
   --color-link: #2A67FF;
-  --color-accent: #dd0808;  /* Updated to golden */
+  --color-accent: #dd0808; /* Updated to golden */
   --color-border: #e6e92b;
+  --header-height: 4rem; /* Adjust this value based on your header's actual height */
 }
 
 body {
@@ -48,7 +49,7 @@ a:hover {
 
 @layer components {
   .btn, a, button, input[type="submit"] {
-    @apply min-h-[44px] min-w-[44px] p-2 ;
+    @apply min-h-[44px] min-w-[44px] p-2;
   }
 }
 
@@ -63,4 +64,31 @@ pre[class*="language-"] {
 
 .katex {
   @apply text-sm md:text-base;
+}
+
+/* Styles for fixed header */
+.header {
+  position: sticky;  /* Change from fixed to sticky */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  z-index: 50;
+  background-color: var(--color-surface);
+  border-bottom: 2px solid var(--color-accent);
+}
+.footer {
+  position: sticky;  /* Change from fixed to sticky */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  z-index: 50;
+  background-color: var(--color-surface);
+  border-top: 2px solid var(--color-border);
+}
+
+/* Adjust main content to account for fixed header */
+main {
+  min-height: calc(100vh - var(--header-height));
 }
