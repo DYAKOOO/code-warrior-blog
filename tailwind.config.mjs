@@ -11,6 +11,9 @@ module.exports = {
       },
       extend: {
         background: 'var(--color-background)',
+        backdropBlur: {
+          sm: '4px',
+        },
         surface: 'var(--color-surface)',
         'text-primary': 'var(--color-text-primary)',
         'text-secondary': 'var(--color-text-secondary)',

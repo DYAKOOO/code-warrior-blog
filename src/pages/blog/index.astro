@@ -1,130 +1,131 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import BlogPost from '../../layouts/BlogPost.astro';
-import SearchBar from '../../components/SearchBar.astro';
+import { getCollection } from 'astro:content';
 
-const posts = await getCollection('blog');
-const tags = posts.map((post) => post.data.tags || []).flat();
-const uniqueTags = [...new Set(tags)];
+const allPosts = await getCollection('blog');
+const categories = [...new Set(allPosts.map(post => post.data.category))];
+const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
 ---
 
 <Layout title="Blog">
-  <h1 class="text-4xl font-bold text-primary mb-8">Blog</h1>
-  <div class="mb-8">
-    <SearchBar placeholder="Search posts or tags..." />
-  </div>
-  
-  <div class="flex flex-wrap gap-2 mb-4" id="tags" data-tags={uniqueTags}>
-    <button data-type="all" class="filter-button active" id="blogFilter">
-      Show All
-    </button>
-    {uniqueTags.map((tag) => (
-      <button data-type={tag} class="filter-button" id="blogFilter">
-        {tag}
-      </button>
-    ))}
-  </div>
-  <div id="blogPosts" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    {posts.map((post) => (
-      <div class={`blog-post ${post.data.tags ? post.data.tags.join(" ") : ""}`}>
-        <BlogPost post={post} />
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Blog</h1>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-grow relative">
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Search posts..." 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <div id="search-results" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden"></div>
+        </div>
+        <div class="flex gap-4">
+          <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Categories</option>
+            {categories.map(category => (
+              <option value={category}>{category}</option>
+            ))}
+          </select>
+          <select id="tagFilter" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">All Tags</option>
+            {tags.map(tag => (
+              <option value={tag}>{tag}</option>
+            ))}
+          </select>
+        </div>
       </div>
-    ))}
+    </div>
+
+    <div id="blogPosts" class="grid gap-8 md:grid-cols-2">
+      {allPosts.map((post) => <BlogPost post={post} />)}
+    </div>
   </div>
 
   <script>
-    function filterBlogs(tag: string) {
-      const buttons = document.querySelectorAll("#blogFilter");
-      buttons.forEach((button) => {
-        if (button instanceof HTMLElement) {
-          button.classList.toggle("active", button.getAttribute("data-type") === tag);
-        }
-      });
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const tagFilter = document.getElementById('tagFilter');
+    const blogPosts = document.querySelectorAll('.blog-post');
 
-      document.querySelectorAll('.blog-post').forEach((el) => {
-        if (el instanceof HTMLElement) {
-          el.style.display = (tag === "all" || el.classList.contains(tag)) ? "block" : "none";
-        }
+    function filterPosts() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedCategory = categoryFilter.value;
+      const selectedTag = tagFilter.value;
+
+      blogPosts.forEach(post => {
+        const title = post.querySelector('h2').textContent.toLowerCase();
+        const category = post.dataset.category;
+        const tags = post.dataset.tags.split(',');
+
+        const matchesSearch = title.includes(searchTerm);
+        const matchesCategory = selectedCategory === '' || category === selectedCategory;
+        const matchesTag = selectedTag === '' || tags.includes(selectedTag);
+
+        post.style.display = matchesSearch && matchesCategory && matchesTag ? 'block' : 'none';
       });
     }
 
-    // Event listener for the button click
-    document.querySelectorAll("#blogFilter").forEach((button) => {
-      button.addEventListener("click", (e) => {
-        const target = e.currentTarget;
-        if (target instanceof HTMLElement) {
-          const dataType = target.getAttribute("data-type");
-          if (dataType) {
-            filterBlogs(dataType);
-          }
-        }
-      });
+    function updateSearchDropdown() {
+      const searchTerm = searchInput.value.toLowerCase();
+      if (searchTerm.length < 2) {
+        searchResults.innerHTML = '';
+        searchResults.classList.add('hidden');
+        return;
+      }
+
+      const matchingPosts = Array.from(blogPosts).filter(post => 
+        post.querySelector('h2').textContent.toLowerCase().includes(searchTerm)
+      );
+
+      if (matchingPosts.length > 0) {
+        searchResults.innerHTML = matchingPosts.map(post => `
+          <div class="p-2 hover:bg-gray-100 cursor-pointer">
+            ${post.querySelector('h2').textContent}
+          </div>
+        `).join('');
+        searchResults.classList.remove('hidden');
+      } else {
+        searchResults.innerHTML = '<div class="p-2">No results found</div>';
+        searchResults.classList.remove('hidden');
+      }
+    }
+
+    searchInput.addEventListener('input', () => {
+      updateSearchDropdown();
+      filterPosts();
     });
 
-    // Event delegation for tag clicks within blog posts
-    document.addEventListener('click', (e) => {
-      const target = e.target;
-      if (target instanceof HTMLElement && target.classList.contains('post-tag')) {
-        e.preventDefault();
-        const dataTag = target.getAttribute('data-tag');
-        if (dataTag) {
-          filterBlogs(dataTag);
-        }
+    searchResults.addEventListener('click', (e) => {
+      if (e.target.textContent !== 'No results found') {
+        searchInput.value = e.target.textContent;
+        searchResults.classList.add('hidden');
+        filterPosts();
       }
     });
 
-    // Search functionality
-    const searchInput = document.querySelector('#search-input');
-    const blogPosts = document.querySelector('#blogPosts');
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.classList.add('hidden');
+      }
+    });
 
-    if (searchInput instanceof HTMLInputElement && blogPosts) {
-      const allPosts = [...blogPosts.querySelectorAll('.blog-post')];
+    categoryFilter.addEventListener('change', filterPosts);
+    tagFilter.addEventListener('change', filterPosts);
 
-      searchInput.addEventListener('input', (e) => {
-        const searchTerm = (e.target as HTMLInputElement).value.toLowerCase();
-        
-        allPosts.forEach(post => {
-          const title = post.querySelector('h2')?.textContent?.toLowerCase() || '';
-          const description = post.querySelector('p')?.textContent?.toLowerCase() || '';
-          const tags = [...post.querySelectorAll('.post-tag')].map(tag => tag.textContent?.toLowerCase() || '');
-          
-          const isVisible =
-            title.includes(searchTerm) ||
-            description.includes(searchTerm) ||
-            tags.some(tag => tag.includes(searchTerm));
-          
-          if (post instanceof HTMLElement) {
-            post.style.display = isVisible ? 'block' : 'none';
-          }
-        });
-
-        // Reset tag filter when searching
-        const allButton = document.querySelector('#blogFilter[data-type="all"]');
-        if (allButton instanceof HTMLElement) {
-          allButton.classList.add('active');
-        }
-        document.querySelectorAll('#blogFilter:not([data-type="all"])').forEach(btn => {
-          if (btn instanceof HTMLElement) {
-            btn.classList.remove('active');
-          }
-        });
-      });
-    }
+    // Initial filter
+    filterPosts();
   </script>
 </Layout>
 
 <style>
-  .filter-button {
-    @apply text-gray-600 bg-gray-200 px-2 py-2 rounded-full text-sm transition duration-300;
-  }
-  .filter-button:hover {
-    @apply bg-red-600 text-white;
-  }
-  .filter-button.active {
-    @apply bg-red-400 text-black;
-  }
-  .blog-post {
-    @apply block;
+  @media (max-width: 768px) {
+    #blogPosts {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

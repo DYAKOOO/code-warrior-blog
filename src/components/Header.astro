@@ -1,63 +1,111 @@
 ---
 import HeaderLink from './HeaderLink.astro';
+
+const { currentPath } = Astro.props;
+
+function isActive(path) {
+  return currentPath === path;
+}
 ---
 
-<header class="bg-white p-4 shadow-sm sticky top-0 z-50">
-  <div class="container mx-auto flex justify-between items-center">
-    <a href="/" class="text-2xl font-bold text-blue-600">My Knowledge Blog</a>
-    <nav class="hidden md:flex space-x-4">
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <a href="/" class="text-2xl font-bold text-primary">My Knowledge Blog</a>
+    
+    <nav class="hidden md:flex space-x-4 items-center">
       <div class="relative">
-        <button id="blogDropdown" class="flex items-center space-x-1">
+        <button id="blogDropdownButton" class={`flex items-center space-x-1 text-gray-700 hover:text-blue-500 focus:outline-none ${isActive('/blog') ? 'border-b-2 border-blue-500' : ''}`}>
           <span>Blog</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        <ul id="blogDropdownMenu" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
-          <li><a href="/blog" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Posts</a></li>
-          <li><a href="/blog/gaussian-splatting" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Gaussian Splatting</a></li>
-          <li><a href="/blog/machine-learning" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Machine Learning</a></li>
-        </ul>
+        <div id="blogDropdownMenu" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
+          <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            <a href="/blog" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog') ? 'bg-gray-100' : ''}`} role="menuitem">All Posts</a>
+            <a href="/blog/category/gaussiansplatting" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/gaussiansplatting') ? 'bg-gray-100' : ''}`} role="menuitem">Gaussian Splatting</a>
+            <a href="/blog/category/machinelearning" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/machinelearning') ? 'bg-gray-100' : ''}`} role="menuitem">Machine Learning</a>
+          </div>
+        </div>
       </div>
-      <HeaderLink href="/projects">Projects</HeaderLink>
-      <HeaderLink href="/about">About</HeaderLink>
+      <HeaderLink href="/projects" class={isActive('/projects') ? 'border-b-2 border-blue-500' : ''}>Projects</HeaderLink>
+      <HeaderLink href="/about" class={isActive('/about') ? 'border-b-2 border-blue-500' : ''}>About</HeaderLink>
     </nav>
-    <button id="mobileMenuToggle" class="md:hidden">
+    
+    <button id="mobileMenuToggle" class="md:hidden text-primary">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
       </svg>
     </button>
   </div>
-  <div id="mobileMenu" class="hidden md:hidden mt-4">
-    <a href="/blog" class="block py-2">Blog</a>
-    <a href="/projects" class="block py-2">Projects</a>
-    <a href="/about" class="block py-2">About</a>
-  </div>
 </header>
+
+<div id="sidebarOverlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden"></div>
+
+<div id="mobileSidebar" class="fixed inset-y-0 right-0 w-64 bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out z-50">
+  <div class="p-4">
+    <button id="closeSidebar" class="mb-4 text-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <nav class="flex flex-col space-y-4">
+      <a href="/blog" class={`block text-gray-700 hover:text-blue-500 ${isActive('/blog') ? 'font-bold' : ''}`}>Blog</a>
+      <a href="/blog/category/gaussiansplatting" class={`block text-gray-700 hover:text-blue-500 ${isActive('/blog/category/gaussiansplatting') ? 'font-bold' : ''}`}>Gaussian Splatting</a>
+      <a href="/blog/category/machinelearning" class={`block text-gray-700 hover:text-blue-500 ${isActive('/blog/category/machinelearning') ? 'font-bold' : ''}`}>Machine Learning</a>
+      <a href="/projects" class={`block text-gray-700 hover:text-blue-500 ${isActive('/projects') ? 'font-bold' : ''}`}>Projects</a>
+      <a href="/about" class={`block text-gray-700 hover:text-blue-500 ${isActive('/about') ? 'font-bold' : ''}`}>About</a>
+    </nav>
+  </div>
+</div>
 
 <script>
   const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const blogDropdown = document.getElementById('blogDropdown');
+  const mobileSidebar = document.getElementById('mobileSidebar');
+  const closeSidebar = document.getElementById('closeSidebar');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const mainContent = document.querySelector('main');
+  const blogDropdownButton = document.getElementById('blogDropdownButton');
   const blogDropdownMenu = document.getElementById('blogDropdownMenu');
 
-  if (mobileMenuToggle && mobileMenu) {
-    mobileMenuToggle.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
+  function openSidebar() {
+    mobileSidebar.classList.remove('translate-x-full');
+    sidebarOverlay.classList.remove('hidden');
+    mainContent.classList.add('blur-sm');
   }
 
-  if (blogDropdown && blogDropdownMenu) {
-    blogDropdown.addEventListener('click', (e) => {
-      e.preventDefault();
-      blogDropdownMenu.classList.toggle('hidden');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!blogDropdown.contains(e.target as Node)) {
-        blogDropdownMenu.classList.add('hidden');
-      }
-    });
+  function closeSidebarFunc() {
+    mobileSidebar.classList.add('translate-x-full');
+    sidebarOverlay.classList.add('hidden');
+    mainContent.classList.remove('blur-sm');
   }
+
+  function toggleBlogDropdown(event) {
+    event.stopPropagation();
+    blogDropdownMenu.classList.toggle('hidden');
+  }
+
+  function closeBlogDropdown() {
+    blogDropdownMenu.classList.add('hidden');
+  }
+
+  mobileMenuToggle.addEventListener('click', openSidebar);
+  closeSidebar.addEventListener('click', closeSidebarFunc);
+  sidebarOverlay.addEventListener('click', closeSidebarFunc);
+
+  blogDropdownButton.addEventListener('click', toggleBlogDropdown);
+  
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!blogDropdownButton.contains(event.target) && !blogDropdownMenu.contains(event.target)) {
+      closeBlogDropdown();
+    }
+  });
+
+  // Close dropdown when pressing Escape key
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeBlogDropdown();
+    }
+  });
 </script>
