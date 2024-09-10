@@ -1,0 +1,46 @@
+---
+const { tags, currentTag } = Astro.props;
+---
+
+<aside id="sidebar" class="bg-surface p-4 md:p-6 rounded-lg shadow-md hidden md:block">
+  <h2 class="text-xl font-semibold mb-4 text-accent">Tags</h2>
+  <div class="flex flex-wrap gap-2">
+    <a 
+      href="/blog"
+      class={`px-3 py-1 rounded-full text-sm transition duration-300 ${
+        !currentTag 
+          ? 'bg-accent text-surface' 
+          : 'bg-background text-text-secondary hover:bg-accent hover:text-surface'
+      }`}
+    >
+      All Posts
+    </a>
+    {tags.map((tag) => (
+      <a 
+        href={`/blog?tag=${encodeURIComponent(tag)}`}
+        class={`px-3 py-1 rounded-full text-sm transition duration-300 ${
+          currentTag === tag 
+            ? 'bg-accent text-surface' 
+            : 'bg-background text-text-secondary hover:bg-accent hover:text-surface'
+        }`}
+      >
+        {tag}
+      </a>
+    ))}
+  </div>
+</aside>
+
+<button id="sidebarToggle" class="fixed bottom-4 right-4 bg-accent text-surface p-2 rounded-full md:hidden">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+  </svg>
+</button>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('hidden');
+  });
+</script>
