@@ -12,14 +12,15 @@ const currentPath = Astro.url.pathname;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | My Knowledge Blog</title>
+    <title>{title} | Rubaiyat of Reason</title>
   </head>
   <body class="flex flex-col min-h-screen bg-background text-text-primary">
-    <Header />
-    <main class="flex-grow container mx-auto px-4 pt-4 pb-12">
-      <slot />
-    </main>
-
+    <Header currentPath={currentPath} />
+    <div class="flex-grow flex">
+      <main class="flex-grow container mx-auto px-4 pt-4 pb-12">
+        <slot />
+      </main>
+    </div>
     <Sidebar currentPath={currentPath} />
     <Footer />
   </body>
