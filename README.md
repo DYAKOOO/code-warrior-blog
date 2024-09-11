@@ -56,15 +56,46 @@ To get this project up and running on your local machine, follow these steps:
 
 ## Project Structure
 
-[Project structure remains the same as in the previous version]
+my-knowledge-blog/
+│
+├── public/
+│ └── (static assets like images)
+│
+├── src/
+│ ├── components/
+│ │ └── (Astro components)
+│ │
+│ ├── content/
+│ │ └── blog/
+│ │ └── (Markdown files for blog posts)
+│ │
+│ ├── layouts/
+│ │ └── (Layout components)
+│ │
+│ ├── pages/
+│ │ └── (Astro pages)
+│ │
+│ └── styles/
+│ └── global.css
+│
+├── astro.config.mjs
+├── package.json
+└── tsconfig.json
 
 ## Customization
 
-[Customization steps remain the same as in the previous version]
+1. Update site metadata in src/consts.ts
+2. Modify the global styles in src/styles/global.css
+3. Add or edit blog posts in src/content/blog/
+4. Customize components in src/components/
 
 ## Deployment
 
-[Deployment instructions remain the same as in the previous version]
+To build the site for production:
+
+npm run build
+
+The built files will be in the dist/ directory, ready for deployment to your preferred hosting 
 
 ## Contributing
 
