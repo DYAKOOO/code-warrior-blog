@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+
+
+# All the dployment files because sensitive 
+deployment/
+

@@ -4,10 +4,10 @@ description: 'Learn how to implement Gaussian Splatting in real-time rendering s
 pubDate: 2024-09-25
 heroImage: '/blog-placeholder-3.jpg'
 category: 'GaussianSplatting'
-tags: ['computer graphics', 'real-time rendering', 'gaussian splatting', 'implementation']
+tags: ['computer graphics', 'real-time rendering', 'implementation']
 ---
 
-# Implementing Gaussian Splatting in Real-Time Rendering
+# Implementing Gaussian Splatting in Real-Time Rendering 
 
 This post will focus on practical strategies for implementing Gaussian Splatting in real-time rendering systems.
 
