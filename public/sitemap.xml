@@ -2,18 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Home Page -->
   <url>
-    <loc>https://www.neuraldiwan.com/</loc>
+       <loc>https://neuraldiwan.xyz/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- Blog Index -->
   <url>
-    <loc>https://www.neuraldiwan.com/blog/</loc>
+    <loc>https://neuraldiwan.xyz/blog/</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-
+  
   <!-- Category Pages -->
   <url>
     <loc>https://www.neuraldiwan.com/blog/category/gaussian-splatting/</loc>
