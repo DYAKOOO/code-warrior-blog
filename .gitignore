@@ -25,6 +25,8 @@ pnpm-debug.log*
 
 
 
-# All the dployment files because sensitive 
+# All the dployment files because sensitive information . 
 deployment/
 
+
+.vscode/

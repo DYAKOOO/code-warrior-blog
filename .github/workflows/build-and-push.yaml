@@ -4,16 +4,25 @@ on:
     branches: [ main ]
 jobs:
   build-and-push:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag gcr.io/neural-diwan-435305/astro-blog:${{ github.sha }}
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v1
+    - uses: actions/checkout@v3
+    
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-    - name: Push the Docker image
+        workload_identity_provider: 'projects/219777735130/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+        service_account: 'gcr-keel@neural-diwan-435305.iam.gserviceaccount.com'
+    
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+    
+    - name: Build and Push the Docker image
       run: |
         gcloud auth configure-docker
+        docker build . --file deployment/Dockerfile --tag gcr.io/neural-diwan-435305/astro-blog:${{ github.sha }}
         docker push gcr.io/neural-diwan-435305/astro-blog:${{ github.sha }}
