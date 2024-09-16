@@ -41,7 +41,7 @@ jobs:
 
     - name: Push Docker image
       run: |
-        echo ${{ secrets.GCP_SA_KEY }} | docker login -u _json_key --password-stdin https://gcr.io
+        gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
         docker push gcr.io/neural-diwan-435305/astro-blog:${{ github.sha }}
 
     - name: 'Deploy to GKE'
