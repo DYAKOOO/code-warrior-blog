@@ -4,47 +4,35 @@ on:
   push:
     branches: [ main ]
 
+env:
+  PROJECT_ID: neural-diwan-435305
+  GKE_CLUSTER: astro-blog-cluster
+  GKE_ZONE: us-central1-a
+
 jobs:
   build-and-push:
-    permissions:
-      contents: 'read'
-      id-token: 'write'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: 'Authenticate to Google Cloud'
-      id: 'auth'
-      uses: 'google-github-actions/auth@v1'
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@v1
       with:
-        workload_identity_provider: 'projects/219777735130/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-        service_account: 'gcr-keel@neural-diwan-435305.iam.gserviceaccount.com'
-
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v1'
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ env.PROJECT_ID }}
 
     - name: Configure Docker
-      run: |
-        gcloud auth configure-docker --quiet
-        echo "GOOGLE_APPLICATION_CREDENTIALS=${{ steps.auth.outputs.credentials_file_path }}" >> $GITHUB_ENV
-
-    - name: Debug Information
-      run: |
-        gcloud auth list
-        gcloud config list
-        gcloud projects list
-        gcloud container images list
+      run: gcloud auth configure-docker --quiet
 
     - name: Build Docker image
-      run: docker build . -t gcr.io/neural-diwan-435305/astro-blog:${{ github.sha }}
+      run: docker build . -t gcr.io/${{ env.PROJECT_ID }}/astro-blog:${{ github.sha }}
 
     - name: Push Docker image
-      run: |
-        gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
-        docker push gcr.io/neural-diwan-435305/astro-blog:${{ github.sha }}
+      run: docker push gcr.io/${{ env.PROJECT_ID }}/astro-blog:${{ github.sha }}
 
-    - name: 'Deploy to GKE'
-      run: |
-        gcloud container clusters get-credentials astro-blog-cluster --zone us-central1-a --project neural-diwan-435305
-        kubectl set image deployment/astro-blog astro-blog=gcr.io/neural-diwan-435305/astro-blog:${{ github.sha }}
+    - name: Get GKE credentials
+      run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
+
+    - name: Deploy to GKE
+      run: kubectl set image deployment/astro-blog astro-blog=gcr.io/${{ env.PROJECT_ID }}/astro-blog:${{ github.sha }}

@@ -30,3 +30,6 @@ deployment/
 
 
 .vscode/
+
+# Stack  overflow fitted to llm
+pdf/
