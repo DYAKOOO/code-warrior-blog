@@ -22,6 +22,13 @@ jobs:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         project_id: ${{ env.PROJECT_ID }}
 
+    - name: Verify Google Cloud authentication
+      run: |
+        gcloud auth list
+        gcloud config list
+        gcloud projects list
+        gcloud container images list
+
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
 
@@ -29,7 +36,9 @@ jobs:
       run: docker build . -t gcr.io/${{ env.PROJECT_ID }}/astro-blog:${{ github.sha }}
 
     - name: Push Docker image
-      run: docker push gcr.io/${{ env.PROJECT_ID }}/astro-blog:${{ github.sha }}
+      run: |
+        gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://gcr.io
+        docker push gcr.io/${{ env.PROJECT_ID }}/astro-blog:${{ github.sha }}
 
     - name: Get GKE credentials
       run: gcloud container clusters get-credentials ${{ env.GKE_CLUSTER }} --zone ${{ env.GKE_ZONE }}
