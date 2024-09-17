@@ -8,10 +8,10 @@ import rehypePrism from 'rehype-prism-plus';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 15;  // or any number higher than 10
+//EventEmitter.defaultMaxListeners = 15;  // or any number higher than 10
 
 export default defineConfig({
-  site: 'https://your-domain.com',
+  site: 'https://neuraldiwan.xyz',
   integrations: [mdx(), sitemap(), tailwind()],
   output: 'static',
   build: {

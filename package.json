@@ -10,7 +10,6 @@
     "astro": "astro",
     "clean": "rm -rf dist"
   },
-
   "dependencies": {
     "@astrojs/check": "^0.9.3",
     "@astrojs/mdx": "^3.1.5",
