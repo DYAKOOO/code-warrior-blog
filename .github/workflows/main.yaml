@@ -16,24 +16,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: 'Create SA key JSON file'
-      run: echo '${{ secrets.GCP_SA_KEY }}' > sa_key.json
+    - name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v1'
-      with:
-        service_account_key: sa_key.json
-        project_id: ${{ env.PROJECT_ID }}
 
     - name: 'Use gcloud CLI'
       run: |
         gcloud info
-        gcloud auth list
-        gcloud config list
-        gcloud projects list
-
-    - name: Configure Docker
-      run: |
         gcloud auth configure-docker gcr.io --quiet
 
     - name: Build Docker image
@@ -47,7 +40,3 @@ jobs:
 
     - name: Deploy to GKE
       run: kubectl set image deployment/astro-blog astro-blog=gcr.io/${{ env.PROJECT_ID }}/astro-blog:${{ github.sha }}
-
-    - name: Clean up
-      if: always()
-      run: rm sa_key.json
