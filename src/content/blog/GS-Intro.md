@@ -9,7 +9,7 @@ tags: ['computer graphics', '3D rendering', 'gaussian splatting']
 
 # Introduction to Gaussian Splatting
 
-Gaussian Splatting is a powerful technique in computer graphics that has gained significant attention in recent years. This post will introduce the fundamental concepts of Gaussian Splatting and its applications in 3D rendering.
+Lorem ipsum 
 
 ## What is Gaussian Splatting?
 
