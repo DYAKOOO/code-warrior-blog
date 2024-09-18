@@ -133,6 +133,7 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         searchResults.innerHTML = matchingPosts.map(post => `
           <a href="/blog/${post.slug}/" class="block p-2 hover:bg-gray-100 cursor-pointer">
             ${post.data.title}
+          </a>
         `).join('');
         searchResults.classList.remove('hidden');
       } else {
