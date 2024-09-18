@@ -10,14 +10,14 @@ function isActive(path) {
 ---
 
 <header class="bg-white shadow-sm sticky top-0 z-50">
-  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+  <div class="container mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
     <a href="/" class="flex items-center">
-      <Logo class="w-20 h-20 mr-3" />
-      <span class="text-3xl font-bold text-primary">Neural Diwan</span>
+      <Logo class="w-8 h-8 md:w-12 md:h-12 mr-2 md:mr-3" />
+      <span class="text-xl md:text-3xl font-bold text-primary">Neural Diwan</span>
     </a>
     
-    <nav class="hidden md:flex space-x-6 items-center">
-      <HeaderLink href="/" class={isActive('/') ? 'border-b-2 border-blue-500' : ''}>Home</HeaderLink>
+    <nav class="hidden md:flex space-x-4 items-center">
+      <HeaderLink href="/" class={isActive('/') ? 'text-blue-500' : ''}>Home</HeaderLink>
       
       <div class="relative group">
         <button id="blogDropdownButton" class="flex items-center space-x-1 text-gray-700 hover:text-blue-500 focus:outline-none">
@@ -31,14 +31,13 @@ function isActive(path) {
             <a href="/blog" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog') ? 'bg-gray-100' : ''}`} role="menuitem">All Posts</a>
             <a href="/blog/category/gaussian-splatting" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/gaussian-splatting') ? 'bg-gray-100' : ''}`} role="menuitem">Gaussian Splatting</a>
             <a href="/blog/category/computer-vision" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/computer-vision') ? 'bg-gray-100' : ''}`} role="menuitem">Computer Vision</a>
-            <a href="/blog/category/robotics" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/machine-learning') ? 'bg-gray-100' : ''}`} role="menuitem">Robotics</a>
-          </div>
+            <a href="/blog/category/robotics" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/robotics') ? 'bg-gray-100' : ''}`} role="menuitem">Robotics</a>
           </div>
         </div>
       </div>
       
-      <HeaderLink href="/projects" class={isActive('/projects') ? 'border-b-2 border-blue-500' : ''}>Projects</HeaderLink>
-      <HeaderLink href="/about" class={isActive('/about') ? 'border-b-2 border-blue-500' : ''}>About</HeaderLink>
+      <HeaderLink href="/projects" class={isActive('/projects') ? 'text-blue-500' : ''}>Projects</HeaderLink>
+      <HeaderLink href="/about" class={isActive('/about') ? 'text-blue-500' : ''}>About</HeaderLink>
     </nav>
     
     <button id="mobileMenuToggle" class="md:hidden text-primary">
@@ -50,40 +49,32 @@ function isActive(path) {
 </header>
 
 <script>
-  const dropdownButton = document.getElementById('blogDropdownButton');
-  const dropdownMenu = document.getElementById('blogDropdownMenu');
-  let isDropdownOpen = false;
+  const blogDropdownButton = document.getElementById('blogDropdownButton');
+  const blogDropdownMenu = document.getElementById('blogDropdownMenu');
 
-  if (dropdownButton && dropdownMenu) {
-    dropdownButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isDropdownOpen = !isDropdownOpen;
-      dropdownMenu.classList.toggle('hidden', !isDropdownOpen);
-    });
+  blogDropdownButton.addEventListener('click', () => {
+    blogDropdownMenu.classList.toggle('hidden');
+  });
 
-    dropdownMenu.addEventListener('mouseenter', () => {
-      isDropdownOpen = true;
-      dropdownMenu.classList.remove('hidden');
-    });
+  document.addEventListener('click', (event) => {
+    if (!blogDropdownButton.contains(event.target) && !blogDropdownMenu.contains(event.target)) {
+      blogDropdownMenu.classList.add('hidden');
+    }
+  });
 
-    dropdownMenu.addEventListener('mouseleave', () => {
-      isDropdownOpen = false;
-      dropdownMenu.classList.add('hidden');
-    });
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const mobileMenu = document.querySelector('nav');
 
-    document.addEventListener('click', (e) => {
-      if (isDropdownOpen && !dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        isDropdownOpen = false;
-        dropdownMenu.classList.add('hidden');
-      }
-    });
-
-    // Close dropdown when pressing Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isDropdownOpen) {
-        isDropdownOpen = false;
-        dropdownMenu.classList.add('hidden');
-      }
-    });
-  }
+  mobileMenuToggle.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+    mobileMenu.classList.toggle('flex');
+    mobileMenu.classList.toggle('flex-col');
+    mobileMenu.classList.toggle('absolute');
+    mobileMenu.classList.toggle('top-full');
+    mobileMenu.classList.toggle('left-0');
+    mobileMenu.classList.toggle('right-0');
+    mobileMenu.classList.toggle('bg-white');
+    mobileMenu.classList.toggle('shadow-md');
+    mobileMenu.classList.toggle('p-4');
+  });
 </script>
