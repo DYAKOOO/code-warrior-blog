@@ -39,7 +39,7 @@ const tags = [...new Set(gaussianSplattingPosts.flatMap(post => post.data.tags))
     <div id="posts-count" class="mb-4 text-gray-600"></div>
 
     <div id="blogPosts" class="grid gap-8 md:grid-cols-2">
-      {roboticsPosts.map((post) => <BlogPost post={post} />)}
+      {gaussianSplattingPosts.map((post) => <BlogPost post={post} />)}
     </div>
   </div>
 
