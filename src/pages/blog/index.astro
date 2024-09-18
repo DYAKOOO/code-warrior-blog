@@ -6,6 +6,14 @@ import { getCollection } from 'astro:content';
 const allPosts = await getCollection('blog');
 const categories = [...new Set(allPosts.map(post => post.data.category))];
 const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
+
+// Prepare data for Fuse.js
+const searchData = allPosts.map(post => ({
+  title: post.data.title,
+  category: post.data.category,
+  tags: post.data.tags,
+  slug: post.slug,
+}));
 ---
 
 <Layout title="Blog">
@@ -48,7 +56,9 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       {allPosts.map((post) => <BlogPost post={post} />)}
     </div>
   </div>
-  <script>
+
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+  <script define:vars={{ searchData }}>
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
     const categoryFilter = document.getElementById('categoryFilter');
@@ -57,51 +67,60 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
     const activeFilters = document.getElementById('active-filters');
     const clearFiltersBtn = document.getElementById('clear-filters');
     const postsCount = document.getElementById('posts-count');
-  
+
     let currentFilters = {
       search: '',
       category: '',
       tag: ''
     };
-  
+
+    const fuse = new Fuse(searchData, {
+      keys: ['title', 'category', 'tags'],
+      threshold: 0.3,
+      ignoreLocation: true,
+    });
+
     function filterPosts() {
       let visiblePosts = 0;
-  
+      let filteredPosts = searchData;
+
+      if (currentFilters.search) {
+        filteredPosts = fuse.search(currentFilters.search).map(result => result.item);
+      }
+
+      if (currentFilters.category) {
+        filteredPosts = filteredPosts.filter(post => post.category === currentFilters.category);
+      }
+
+      if (currentFilters.tag) {
+        filteredPosts = filteredPosts.filter(post => post.tags.includes(currentFilters.tag));
+      }
+
       blogPosts.forEach(post => {
-        const title = post.querySelector('h2').textContent.toLowerCase();
-        const category = post.dataset.category.toLowerCase();
-        const tags = post.dataset.tags.toLowerCase().split(',');
-  
-        const matchesSearch = title.includes(currentFilters.search.toLowerCase());
-        const matchesCategory = currentFilters.category === '' || category === currentFilters.category.toLowerCase();
-        const matchesTag = currentFilters.tag === '' || tags.includes(currentFilters.tag.toLowerCase());
-  
-        const isVisible = matchesSearch && matchesCategory && matchesTag;
+        const isVisible = filteredPosts.some(p => p.slug === post.dataset.slug);
         post.style.display = isVisible ? 'block' : 'none';
         if (isVisible) visiblePosts++;
       });
-  
+
       updateActiveFilters();
       updatePostsCount(visiblePosts);
-      updateDropdownOptions();
+      updateDropdownOptions(filteredPosts);
     }
-  
-    function updateSearchDropdown() {
-      const searchTerm = searchInput.value.toLowerCase();
+
+    function updateSearchResults() {
+      const searchTerm = searchInput.value;
       if (searchTerm.length < 2) {
         searchResults.innerHTML = '';
         searchResults.classList.add('hidden');
         return;
       }
-  
-      const matchingPosts = Array.from(blogPosts).filter(post => 
-        post.querySelector('h2').textContent.toLowerCase().includes(searchTerm)
-      );
-  
-      if (matchingPosts.length > 0) {
-        searchResults.innerHTML = matchingPosts.map(post => `
-          <div class="p-2 hover:bg-gray-100 cursor-pointer" data-slug="${post.dataset.slug}">
-            ${post.querySelector('h2').textContent}
+
+      const results = fuse.search(searchTerm);
+
+      if (results.length > 0) {
+        searchResults.innerHTML = results.map(result => `
+          <div class="p-2 hover:bg-gray-100 cursor-pointer" data-slug="${result.item.slug}">
+            ${result.item.title}
           </div>
         `).join('');
         searchResults.classList.remove('hidden');
@@ -110,11 +129,11 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         searchResults.classList.remove('hidden');
       }
     }
-  
+
     function updateActiveFilters() {
       activeFilters.innerHTML = '';
       clearFiltersBtn.classList.add('hidden');
-  
+
       if (currentFilters.search) {
         addFilterPill('search', currentFilters.search);
       }
@@ -124,12 +143,12 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       if (currentFilters.tag) {
         addFilterPill('tag', currentFilters.tag);
       }
-  
+
       if (currentFilters.search || currentFilters.category || currentFilters.tag) {
         clearFiltersBtn.classList.remove('hidden');
       }
     }
-  
+
     function addFilterPill(type, value) {
       const pill = document.createElement('span');
       pill.className = 'bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm';
@@ -145,44 +164,37 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         if (type === 'tag') tagFilter.value = '';
         filterPosts();
       });
-  
+
       pill.appendChild(removeBtn);
       activeFilters.appendChild(pill);
     }
-  
+
     function updatePostsCount(count) {
       postsCount.textContent = `Showing ${count} post${count !== 1 ? 's' : ''}`;
       postsCount.style.display = 'block';
     }
-  
-    function updateDropdownOptions() {
-      const visibleCategories = new Set();
-      const visibleTags = new Set();
-  
-      blogPosts.forEach(post => {
-        if (post.style.display !== 'none') {
-          visibleCategories.add(post.dataset.category);
-          post.dataset.tags.split(',').forEach(tag => visibleTags.add(tag));
-        }
-      });
-  
+
+    function updateDropdownOptions(filteredPosts) {
+      const visibleCategories = new Set(filteredPosts.map(post => post.category));
+      const visibleTags = new Set(filteredPosts.flatMap(post => post.tags));
+
       updateDropdown(categoryFilter, visibleCategories);
       updateDropdown(tagFilter, visibleTags);
     }
-  
+
     function updateDropdown(dropdown, visibleOptions) {
       Array.from(dropdown.options).forEach(option => {
         if (option.value === '') return; // Skip the "All" option
         option.disabled = !visibleOptions.has(option.value);
       });
     }
-  
+
     searchInput.addEventListener('input', () => {
       currentFilters.search = searchInput.value;
-      updateSearchDropdown();
+      updateSearchResults();
       filterPosts();
     });
-  
+
     searchResults.addEventListener('click', (e) => {
       if (e.target.dataset.slug) {
         const selectedPost = document.querySelector(`.blog-post[data-slug="${e.target.dataset.slug}"]`);
@@ -197,17 +209,17 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         }
       }
     });
-  
+
     categoryFilter.addEventListener('change', () => {
       currentFilters.category = categoryFilter.value;
       filterPosts();
     });
-  
+
     tagFilter.addEventListener('change', () => {
       currentFilters.tag = tagFilter.value;
       filterPosts();
     });
-  
+
     clearFiltersBtn.addEventListener('click', () => {
       currentFilters = { search: '', category: '', tag: '' };
       searchInput.value = '';
@@ -215,13 +227,13 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       tagFilter.value = '';
       filterPosts();
     });
-  
+
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
         searchResults.classList.add('hidden');
       }
     });
-  
+
     // Initial filter
     filterPosts();
   </script>
