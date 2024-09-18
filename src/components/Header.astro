@@ -12,26 +12,29 @@ function isActive(path) {
 <header class="bg-white shadow-sm sticky top-0 z-50">
   <div class="container mx-auto px-4 py-4 flex justify-between items-center">
     <a href="/" class="flex items-center">
-      <Logo class="w-20 h-20 mr-3" /> <!--  logo size  -->
+      <Logo class="w-20 h-20 mr-3" />
       <span class="text-3xl font-bold text-primary">Neural Diwan</span>
     </a>
     
     <nav class="hidden md:flex space-x-6 items-center">
-      <div class="relative">
-        <button id="blogDropdownButton" class={`flex items-center space-x-1 text-gray-700 hover:text-blue-500 focus:outline-none ${isActive('/blog') ? 'border-b-2 border-blue-500' : ''}`}>
+      <HeaderLink href="/" class={isActive('/') ? 'border-b-2 border-blue-500' : ''}>Home</HeaderLink>
+      
+      <div class="relative group">
+        <button class="flex items-center space-x-1 text-gray-700 hover:text-blue-500 focus:outline-none">
           <span>Blog</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        <div id="blogDropdownMenu" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
+        <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden group-hover:block">
           <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             <a href="/blog" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog') ? 'bg-gray-100' : ''}`} role="menuitem">All Posts</a>
-            <a href="/blog/category/gaussian-splatting" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/gaussiansplatting') ? 'bg-gray-100' : ''}`} role="menuitem">Gaussian Splatting</a>
-            <a href="/blog/category/machine-learning" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/machinelearning') ? 'bg-gray-100' : ''}`} role="menuitem">Machine Learning</a>
+            <a href="/blog/category/gaussian-splatting" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/gaussian-splatting') ? 'bg-gray-100' : ''}`} role="menuitem">Gaussian Splatting</a>
+            <a href="/blog/category/machine-learning" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/machine-learning') ? 'bg-gray-100' : ''}`} role="menuitem">Machine Learning</a>
           </div>
         </div>
       </div>
+      
       <HeaderLink href="/projects" class={isActive('/projects') ? 'border-b-2 border-blue-500' : ''}>Projects</HeaderLink>
       <HeaderLink href="/about" class={isActive('/about') ? 'border-b-2 border-blue-500' : ''}>About</HeaderLink>
     </nav>
