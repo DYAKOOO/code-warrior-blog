@@ -20,13 +20,13 @@ function isActive(path) {
       <HeaderLink href="/" class={isActive('/') ? 'border-b-2 border-blue-500' : ''}>Home</HeaderLink>
       
       <div class="relative group">
-        <button class="flex items-center space-x-1 text-gray-700 hover:text-blue-500 focus:outline-none">
+        <button id="blogDropdownButton" class="flex items-center space-x-1 text-gray-700 hover:text-blue-500 focus:outline-none">
           <span>Blog</span>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        <div class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden group-hover:block">
+        <div id="blogDropdownMenu" class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
           <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             <a href="/blog" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog') ? 'bg-gray-100' : ''}`} role="menuitem">All Posts</a>
             <a href="/blog/category/gaussian-splatting" class={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isActive('/blog/category/gaussian-splatting') ? 'bg-gray-100' : ''}`} role="menuitem">Gaussian Splatting</a>
@@ -57,6 +57,16 @@ function isActive(path) {
       e.stopPropagation();
       isDropdownOpen = !isDropdownOpen;
       dropdownMenu.classList.toggle('hidden', !isDropdownOpen);
+    });
+
+    dropdownMenu.addEventListener('mouseenter', () => {
+      isDropdownOpen = true;
+      dropdownMenu.classList.remove('hidden');
+    });
+
+    dropdownMenu.addEventListener('mouseleave', () => {
+      isDropdownOpen = false;
+      dropdownMenu.classList.add('hidden');
     });
 
     document.addEventListener('click', (e) => {
