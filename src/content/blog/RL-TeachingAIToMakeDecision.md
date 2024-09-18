@@ -3,7 +3,7 @@ title: 'Reinforcement Learning: Teaching AI to Make Decisions'
 description: 'Discover how reinforcement learning enables AI to learn through interaction with environments'
 pubDate: 2024-10-10
 heroImage: '/blog-placeholder-6.jpg'
-category: 'MachineLearning'
+category: 'ComputerVision'
 tags: ['reinforcement learning', 'AI', 'decision making']
 ---
 

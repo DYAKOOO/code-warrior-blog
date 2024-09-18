@@ -1,16 +1,16 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import BlogPost from '../../layouts/BlogPost.astro';
+import Layout from '../../../layouts/Layout.astro';
+import BlogPost from '../../../layouts/BlogPost.astro';
 import { getCollection } from 'astro:content';
 
 const allPosts = await getCollection('blog');
-const categories = [...new Set(allPosts.map(post => post.data.category))];
-const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
+const roboticsPosts = allPosts.filter(post => post.data.category === 'Robotics');
+const tags = [...new Set(roboticsPosts.flatMap(post => post.data.tags))];
 ---
 
-<Layout title="Blog">
+<Layout title="Robotics Blog Posts">
   <div class="max-w-4xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">Blog</h1>
+    <h1 class="text-3xl font-bold mb-8">Robotics</h1>
     
     <div class="bg-white shadow-md rounded-lg p-6 mb-8">
       <div class="flex flex-col md:flex-row gap-4">
@@ -23,14 +23,8 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
           />
           <div id="search-results" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg hidden"></div>
         </div>
-        <div class="flex flex-col sm:flex-row gap-4">
-          <select id="categoryFilter" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">All Categories</option>
-            {categories.map(category => (
-              <option value={category}>{category}</option>
-            ))}
-          </select>
-          <select id="tagFilter" class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <div class="flex-shrink-0">
+          <select id="tagFilter" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option value="">All Tags</option>
             {tags.map(tag => (
               <option value={tag}>{tag}</option>
@@ -45,14 +39,13 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
     <div id="posts-count" class="mb-4 text-gray-600"></div>
 
     <div id="blogPosts" class="grid gap-8 md:grid-cols-2">
-      {allPosts.map((post) => <BlogPost post={post} />)}
+      {roboticsPosts.map((post) => <BlogPost post={post} />)}
     </div>
   </div>
 
   <script>
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
-    const categoryFilter = document.getElementById('categoryFilter');
     const tagFilter = document.getElementById('tagFilter');
     const blogPosts = document.querySelectorAll('.blog-post');
     const activeFilters = document.getElementById('active-filters');
@@ -61,7 +54,6 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
 
     let currentFilters = {
       search: '',
-      category: '',
       tag: ''
     };
 
@@ -70,14 +62,12 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
 
       blogPosts.forEach(post => {
         const title = post.querySelector('h2').textContent.toLowerCase();
-        const category = post.dataset.category;
         const tags = post.dataset.tags.split(',');
 
         const matchesSearch = title.includes(currentFilters.search.toLowerCase());
-        const matchesCategory = currentFilters.category === '' || category === currentFilters.category;
         const matchesTag = currentFilters.tag === '' || tags.includes(currentFilters.tag);
 
-        const isVisible = matchesSearch && matchesCategory && matchesTag;
+        const isVisible = matchesSearch && matchesTag;
         post.style.display = isVisible ? 'block' : 'none';
         if (isVisible) visiblePosts++;
       });
@@ -119,14 +109,11 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       if (currentFilters.search) {
         addFilterPill('search', currentFilters.search);
       }
-      if (currentFilters.category) {
-        addFilterPill('category', currentFilters.category);
-      }
       if (currentFilters.tag) {
         addFilterPill('tag', currentFilters.tag);
       }
 
-      if (currentFilters.search || currentFilters.category || currentFilters.tag) {
+      if (currentFilters.search || currentFilters.tag) {
         clearFiltersBtn.classList.remove('hidden');
       }
     }
@@ -142,7 +129,6 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       removeBtn.addEventListener('click', () => {
         currentFilters[type] = '';
         if (type === 'search') searchInput.value = '';
-        if (type === 'category') categoryFilter.value = '';
         if (type === 'tag') tagFilter.value = '';
         filterPosts();
       });
@@ -156,17 +142,14 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
     }
 
     function updateDropdownOptions() {
-      const visibleCategories = new Set();
       const visibleTags = new Set();
 
       blogPosts.forEach(post => {
         if (post.style.display !== 'none') {
-          visibleCategories.add(post.dataset.category);
           post.dataset.tags.split(',').forEach(tag => visibleTags.add(tag));
         }
       });
 
-      updateDropdown(categoryFilter, visibleCategories);
       updateDropdown(tagFilter, visibleTags);
     }
 
@@ -196,20 +179,14 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       }
     });
 
-    categoryFilter.addEventListener('change', () => {
-      currentFilters.category = categoryFilter.value;
-      filterPosts();
-    });
-
     tagFilter.addEventListener('change', () => {
       currentFilters.tag = tagFilter.value;
       filterPosts();
     });
 
     clearFiltersBtn.addEventListener('click', () => {
-      currentFilters = { search: '', category: '', tag: '' };
+      currentFilters = { search: '', tag: '' };
       searchInput.value = '';
-      categoryFilter.value = '';
       tagFilter.value = '';
       filterPosts();
     });

@@ -3,7 +3,7 @@ title: 'Understanding Convolutional Neural Networks (CNNs)'
 description: 'Explore the architecture and applications of Convolutional Neural Networks in image processing'
 pubDate: 2024-10-05
 heroImage: '/blog-placeholder-5.jpg'
-category: 'MachineLearning'
+category: 'ComputerVision'
 tags: ['CNN', 'computer vision', 'deep learning']
 ---
 

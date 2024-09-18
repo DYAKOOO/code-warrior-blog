@@ -3,7 +3,7 @@ title: 'Introduction to Neural Networks'
 description: 'Learn the basics of neural networks and their applications in machine learning'
 pubDate: 2024-10-01
 heroImage: '/blog-placeholder-4.jpg'
-category: 'MachineLearning'
+category: 'ComputerVision'
 tags: ['neural networks', 'deep learning', 'AI']
 ---
 
