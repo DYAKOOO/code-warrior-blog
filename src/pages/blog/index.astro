@@ -175,6 +175,14 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       postsCount.textContent = `Showing ${count} post${count !== 1 ? 's' : ''}`;
     }
 
+    function clearAllFilters() {
+      currentFilters = { search: '', category: '', tag: '' };
+      searchInput.value = '';
+      categoryFilter.value = '';
+      tagFilter.value = '';
+      filterPosts();
+    }
+
     searchInput.addEventListener('input', () => {
       updateSearchDropdown();
       currentFilters.search = searchInput.value;
@@ -191,19 +199,16 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       filterPosts();
     });
 
-    clearFiltersBtn.addEventListener('click', () => {
-      currentFilters = { search: '', category: '', tag: '' };
-      searchInput.value = '';
-      categoryFilter.value = '';
-      tagFilter.value = '';
-      filterPosts();
-    });
+    clearFiltersBtn.addEventListener('click', clearAllFilters);
 
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
         searchResults.classList.add('hidden');
       }
     });
+
+    // Clear filters on page load
+    window.addEventListener('load', clearAllFilters);
 
     // Initial filter
     filterPosts();
