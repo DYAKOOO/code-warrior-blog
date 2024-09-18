@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import FormattedDate from '../components/FormattedDate.astro';
 import RecentPosts from '../components/RecentPosts.astro';
-import Search from '../components/SearchBar.astro';
+import SearchBar from '../components/SearchBar.astro';
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
@@ -16,29 +16,12 @@ const recentPosts = posts.slice(0, 5);
   <div class="max-w-4xl mx-auto px-4 py-8">
     <div class="mb-12 text-center">
       <h1 class="text-4xl font-bold mb-6">Welcome to Neural Diwan</h1>
-      <div class="bg-gray-100 p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold mb-4">Omar Khayyam</h2>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="text-right" dir="rtl" lang="fa">
-            <p>اسرار ازل را نه تو دانی و نه من</p>
-            <p>وین حرف معما نه تو خوانی و نه من</p>
-            <p>هست از پس پرده گفتگوی من و تو</p>
-            <p>چون پرده برافتد نه تو مانی و نه من</p>
-          </div>
-          <div class="text-left">
-            <p>Nor you nor I can read the etern decree</p>
-            <p>To that enigma we can find no key</p>
-            <p>Of You and me they talk behind the Veil</p>
-            <p>But when that parts, no more of you or me.</p>
-          </div>
-        </div>
-      </div>
     </div>
     
     <div class="flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8">
       <main class="w-full md:w-2/3">
         <div class="mb-12">
-          <Search />
+          <SearchBar />
         </div>
         <div class="space-y-12">
           {posts.map((post) => (

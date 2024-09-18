@@ -8,6 +8,14 @@ interface Props {
 }
 
 const { placeholder = "Search posts or tags..." } = Astro.props;
+
+// Prepare data for Fuse.js
+const searchData = allPosts.map(post => ({
+  title: post.data.title,
+  description: post.data.description,
+  tags: post.data.tags,
+  slug: post.slug,
+}));
 ---
 
 <div class="search-container mb-8">
@@ -20,32 +28,35 @@ const { placeholder = "Search posts or tags..." } = Astro.props;
   <div id="search-results" class="mt-4 space-y-4"></div>
 </div>
 
-<script define:vars={{ allPosts }}>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
+<script define:vars={{ searchData }}>
   const searchInput = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
 
+  const fuse = new Fuse(searchData, {
+    keys: ['title', 'description', 'tags'],
+    threshold: 0.3,
+    ignoreLocation: true,
+  });
+
   searchInput.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
+    const searchTerm = e.target.value;
     
     if (searchTerm === '') {
       searchResults.innerHTML = '';
       return;
     }
 
-    const filteredPosts = allPosts.filter(post => 
-      post.data.title.toLowerCase().includes(searchTerm) ||
-      post.data.description.toLowerCase().includes(searchTerm) ||
-      post.data.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-    );
+    const results = fuse.search(searchTerm);
 
-    searchResults.innerHTML = filteredPosts.map(post => `
+    searchResults.innerHTML = results.map(result => `
       <div class="search-result bg-surface p-4 rounded-lg shadow-md">
-        <a href="/blog/${post.slug}" class="text-lg font-semibold text-accent hover:underline">
-          ${post.data.title}
+        <a href="/blog/${result.item.slug}" class="text-lg font-semibold text-accent hover:underline">
+          ${result.item.title}
         </a>
-        <p class="text-text-secondary mt-2">${post.data.description}</p>
+        <p class="text-text-secondary mt-2">${result.item.description}</p>
         <div class="mt-2 flex flex-wrap gap-2">
-          ${post.data.tags.map(tag => `
+          ${result.item.tags.map(tag => `
             <span class="bg-gray-200 px-2 py-1 rounded-full text-sm text-gray-700">
               ${tag}
             </span>

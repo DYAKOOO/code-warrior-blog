@@ -10,7 +10,7 @@ const { post } = Astro.props;
 const { title, pubDate, updatedDate, heroImage, description, category, tags } = post.data;
 ---
 
-<article class="blog-post card hover:shadow-lg transition-all duration-300" data-slug={post.slug} data-category={category} data-tags={tags.join(',')}>
+<article class="blog-post" data-category={category} data-tags={tags.join(',')}></article>
   <a href={`/blog/${post.slug}/`} class="block">
     {heroImage && (
       <img 
