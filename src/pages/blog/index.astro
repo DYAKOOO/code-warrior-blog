@@ -48,6 +48,7 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       {allPosts.map((post) => <BlogPost post={post} />)}
     </div>
   </div>
+
   <script>
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
@@ -57,35 +58,35 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
     const activeFilters = document.getElementById('active-filters');
     const clearFiltersBtn = document.getElementById('clear-filters');
     const postsCount = document.getElementById('posts-count');
-  
+
     let currentFilters = {
       search: '',
       category: '',
       tag: ''
     };
-  
+
     function filterPosts() {
       let visiblePosts = 0;
-  
+
       blogPosts.forEach(post => {
         const title = post.querySelector('h2').textContent.toLowerCase();
-        const category = post.dataset.category.toLowerCase();
-        const tags = post.dataset.tags.toLowerCase().split(',');
-  
+        const category = post.dataset.category;
+        const tags = post.dataset.tags.split(',');
+
         const matchesSearch = title.includes(currentFilters.search.toLowerCase());
-        const matchesCategory = currentFilters.category === '' || category === currentFilters.category.toLowerCase();
-        const matchesTag = currentFilters.tag === '' || tags.includes(currentFilters.tag.toLowerCase());
-  
+        const matchesCategory = currentFilters.category === '' || category === currentFilters.category;
+        const matchesTag = currentFilters.tag === '' || tags.includes(currentFilters.tag);
+
         const isVisible = matchesSearch && matchesCategory && matchesTag;
         post.style.display = isVisible ? 'block' : 'none';
         if (isVisible) visiblePosts++;
       });
-  
+
       updateActiveFilters();
       updatePostsCount(visiblePosts);
       updateDropdownOptions();
     }
-  
+
     function updateSearchDropdown() {
       const searchTerm = searchInput.value.toLowerCase();
       if (searchTerm.length < 2) {
@@ -93,11 +94,11 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         searchResults.classList.add('hidden');
         return;
       }
-  
+
       const matchingPosts = Array.from(blogPosts).filter(post => 
         post.querySelector('h2').textContent.toLowerCase().includes(searchTerm)
       );
-  
+
       if (matchingPosts.length > 0) {
         searchResults.innerHTML = matchingPosts.map(post => `
           <div class="p-2 hover:bg-gray-100 cursor-pointer" data-slug="${post.dataset.slug}">
@@ -110,11 +111,11 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         searchResults.classList.remove('hidden');
       }
     }
-  
+
     function updateActiveFilters() {
       activeFilters.innerHTML = '';
       clearFiltersBtn.classList.add('hidden');
-  
+
       if (currentFilters.search) {
         addFilterPill('search', currentFilters.search);
       }
@@ -124,12 +125,12 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       if (currentFilters.tag) {
         addFilterPill('tag', currentFilters.tag);
       }
-  
+
       if (currentFilters.search || currentFilters.category || currentFilters.tag) {
         clearFiltersBtn.classList.remove('hidden');
       }
     }
-  
+
     function addFilterPill(type, value) {
       const pill = document.createElement('span');
       pill.className = 'bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm';
@@ -145,69 +146,66 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         if (type === 'tag') tagFilter.value = '';
         filterPosts();
       });
-  
+
       pill.appendChild(removeBtn);
       activeFilters.appendChild(pill);
     }
-  
+
     function updatePostsCount(count) {
       postsCount.textContent = `Showing ${count} post${count !== 1 ? 's' : ''}`;
-      postsCount.style.display = 'block';
     }
-  
+
     function updateDropdownOptions() {
       const visibleCategories = new Set();
       const visibleTags = new Set();
-  
+
       blogPosts.forEach(post => {
         if (post.style.display !== 'none') {
           visibleCategories.add(post.dataset.category);
           post.dataset.tags.split(',').forEach(tag => visibleTags.add(tag));
         }
       });
-  
+
       updateDropdown(categoryFilter, visibleCategories);
       updateDropdown(tagFilter, visibleTags);
     }
-  
+
     function updateDropdown(dropdown, visibleOptions) {
       Array.from(dropdown.options).forEach(option => {
         if (option.value === '') return; // Skip the "All" option
         option.disabled = !visibleOptions.has(option.value);
       });
     }
-  
+
     searchInput.addEventListener('input', () => {
-      currentFilters.search = searchInput.value;
       updateSearchDropdown();
+      currentFilters.search = searchInput.value;
       filterPosts();
     });
-  
+
     searchResults.addEventListener('click', (e) => {
       if (e.target.dataset.slug) {
         const selectedPost = document.querySelector(`.blog-post[data-slug="${e.target.dataset.slug}"]`);
         if (selectedPost) {
           searchInput.value = e.target.textContent;
           currentFilters.search = searchInput.value;
-          searchResults.classList.add('hidden');
           filterPosts();
-          setTimeout(() => {
-            selectedPost.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
+          searchResults.classList.add('hidden');
+          selectedPost.scrollIntoView({ behavior: 'smooth' });
         }
       }
     });
-  
+
     categoryFilter.addEventListener('change', () => {
       currentFilters.category = categoryFilter.value;
       filterPosts();
     });
-  
+
     tagFilter.addEventListener('change', () => {
       currentFilters.tag = tagFilter.value;
       filterPosts();
     });
-  
+
     clearFiltersBtn.addEventListener('click', () => {
       currentFilters = { search: '', category: '', tag: '' };
       searchInput.value = '';
@@ -215,13 +213,13 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       tagFilter.value = '';
       filterPosts();
     });
-  
+
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
         searchResults.classList.add('hidden');
       }
     });
-  
+
     // Initial filter
     filterPosts();
   </script>
