@@ -4,7 +4,7 @@ import BlogPost from '../../layouts/BlogPost.astro';
 import { getCollection } from 'astro:content';
 
 const allPosts = await getCollection('blog');
-const categories = [...new Set(allPosts.map(post => post.data.category))];
+const categories = ['Robotics', 'Computer Vision', 'NLP'];
 const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
 ---
 
@@ -49,12 +49,12 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
     </div>
   </div>
 
-  <script define:vars={{ allPosts }}>
+  <script>
     const searchInput = document.getElementById('search-input');
     const searchResults = document.getElementById('search-results');
     const categoryFilter = document.getElementById('categoryFilter');
     const tagFilter = document.getElementById('tagFilter');
-    const blogPostsContainer = document.getElementById('blogPosts');
+    const blogPosts = document.querySelectorAll('.blog-post');
     const activeFilters = document.getElementById('active-filters');
     const clearFiltersBtn = document.getElementById('clear-filters');
     const postsCount = document.getElementById('posts-count');
@@ -66,54 +66,25 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
     };
 
     function filterPosts() {
-      const filteredPosts = allPosts.filter(post => {
-        const matchesSearch = post.data.title.toLowerCase().includes(currentFilters.search.toLowerCase()) ||
-                              post.data.description.toLowerCase().includes(currentFilters.search.toLowerCase());
-        const matchesCategory = currentFilters.category === '' || post.data.category === currentFilters.category;
-        const matchesTag = currentFilters.tag === '' || post.data.tags.includes(currentFilters.tag);
+      let visiblePosts = 0;
 
-        return matchesSearch && matchesCategory && matchesTag;
+      blogPosts.forEach(post => {
+        const title = post.querySelector('h2').textContent.toLowerCase();
+        const category = post.dataset.category;
+        const tags = post.dataset.tags.split(',');
+
+        const matchesSearch = title.includes(currentFilters.search.toLowerCase());
+        const matchesCategory = currentFilters.category === '' || category === currentFilters.category;
+        const matchesTag = currentFilters.tag === '' || tags.includes(currentFilters.tag);
+
+        const isVisible = matchesSearch && matchesCategory && matchesTag;
+        post.style.display = isVisible ? 'block' : 'none';
+        if (isVisible) visiblePosts++;
       });
 
       updateActiveFilters();
-      updatePostsCount(filteredPosts.length);
-      renderPosts(filteredPosts);
-    }
-
-    function renderPosts(posts) {
-      blogPostsContainer.innerHTML = posts.map(post => `
-        <article class="blog-post card hover:shadow-lg transition-all duration-300" data-slug="${post.slug}" data-category="${post.data.category}" data-tags="${post.data.tags.join(',')}">
-          <a href="/blog/${post.slug}/" class="block">
-            ${post.data.heroImage ? `<img src="${post.data.heroImage}" alt="" class="w-full h-48 object-cover rounded-t-lg">` : ''}
-            <div class="p-4">
-              ${post.data.category ? `<p class="text-sm text-accent font-medium mb-2">${post.data.category}</p>` : ''}
-              <h2 class="text-xl font-semibold text-primary mb-2 line-clamp-2">${post.data.title}</h2>
-              <p class="text-sm text-gray-500">${new Date(post.data.pubDate).toLocaleDateString()}</p>
-              ${post.data.description ? `<p class="text-text-secondary mt-2 text-sm line-clamp-3">${post.data.description}</p>` : ''}
-              ${post.data.tags && post.data.tags.length > 0 ? `
-                <div class="mt-4 flex flex-wrap gap-2">
-                  ${post.data.tags.map(tag => `
-                    <span class="tag bg-gray-100 text-text-secondary px-2 py-1 rounded-full text-xs whitespace-nowrap" data-tag="${tag}">${tag}</span>
-                  `).join('')}
-                </div>
-              ` : ''}
-            </div>
-          </a>
-        </article>
-      `).join('');
-
+      updatePostsCount(visiblePosts);
       updateTagAppearance();
-    }
-
-    function updateTagAppearance() {
-      const allTags = document.querySelectorAll('.tag');
-      allTags.forEach(tag => {
-        if (currentFilters.tag && currentFilters.tag !== tag.dataset.tag) {
-          tag.classList.add('opacity-50');
-        } else {
-          tag.classList.remove('opacity-50');
-        }
-      });
     }
 
     function updateSearchDropdown() {
@@ -124,16 +95,15 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
         return;
       }
 
-      const matchingPosts = allPosts.filter(post => 
-        post.data.title.toLowerCase().includes(searchTerm) ||
-        post.data.description.toLowerCase().includes(searchTerm)
+      const matchingPosts = Array.from(blogPosts).filter(post => 
+        post.querySelector('h2').textContent.toLowerCase().includes(searchTerm)
       );
 
       if (matchingPosts.length > 0) {
         searchResults.innerHTML = matchingPosts.map(post => `
-          <a href="/blog/${post.slug}/" class="block p-2 hover:bg-gray-100 cursor-pointer">
-            ${post.data.title}
-          </a>
+          <div class="p-2 hover:bg-gray-100 cursor-pointer" data-slug="${post.dataset.slug}">
+            ${post.querySelector('h2').textContent}
+          </div>
         `).join('');
         searchResults.classList.remove('hidden');
       } else {
@@ -185,18 +155,34 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       postsCount.textContent = `Showing ${count} post${count !== 1 ? 's' : ''}`;
     }
 
-    function clearAllFilters() {
-      currentFilters = { search: '', category: '', tag: '' };
-      searchInput.value = '';
-      categoryFilter.value = '';
-      tagFilter.value = '';
-      filterPosts();
+    function updateTagAppearance() {
+      const allTags = document.querySelectorAll('.tag');
+      allTags.forEach(tag => {
+        if (currentFilters.tag && currentFilters.tag !== tag.textContent) {
+          tag.classList.add('opacity-50');
+        } else {
+          tag.classList.remove('opacity-50');
+        }
+      });
     }
 
     searchInput.addEventListener('input', () => {
       updateSearchDropdown();
       currentFilters.search = searchInput.value;
       filterPosts();
+    });
+
+    searchResults.addEventListener('click', (e) => {
+      if (e.target.dataset.slug) {
+        const selectedPost = document.querySelector(`.blog-post[data-slug="${e.target.dataset.slug}"]`);
+        if (selectedPost) {
+          searchInput.value = e.target.textContent;
+          currentFilters.search = searchInput.value;
+          filterPosts();
+          searchResults.classList.add('hidden');
+          selectedPost.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
     });
 
     categoryFilter.addEventListener('change', () => {
@@ -209,16 +195,19 @@ const tags = [...new Set(allPosts.flatMap(post => post.data.tags))];
       filterPosts();
     });
 
-    clearFiltersBtn.addEventListener('click', clearAllFilters);
+    clearFiltersBtn.addEventListener('click', () => {
+      currentFilters = { search: '', category: '', tag: '' };
+      searchInput.value = '';
+      categoryFilter.value = '';
+      tagFilter.value = '';
+      filterPosts();
+    });
 
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
         searchResults.classList.add('hidden');
       }
     });
-
-    // Clear filters on page load
-    window.addEventListener('load', clearAllFilters);
 
     // Initial filter
     filterPosts();
