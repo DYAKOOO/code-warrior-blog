@@ -4,7 +4,7 @@ This project is a sophisticated blog built with Astro, featuring a custom design
 
 ## Disclaimer
 
-This project is provided as-is, without any warranty or guarantee of its functionality or suitability for any purpose. The author is not responsible for any damages or liabilities arising from the use of this code. Users are advised to review and test the code thoroughly before implementing it in their own projects.
+This project is provided as-is, without ny warranty or guarantee of its functionality or suitability for any purpose. The author is not responsible for any damages or liabilities arising from the use of this code. Users are advised to review and test the code thoroughly before implementing it in their own projects.
 
 ## Implemented Features
 
